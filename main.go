@@ -2,70 +2,50 @@ package main
 
 import (
 	"net/http"
-	"html/template"
+
+	"lenslocked/views"
 
 	"github.com/gorilla/mux"
 )
 
-var homeTemplate *template.Template
-var contactTemplate *template.Template
-var faqTemplate *template.Template
-var pageNoteFoundTemplate *template.Template
+var homeView *views.View
+var contactView *views.View
+var faqView *views.View
+var pageNotFoundView *views.View
 
 func home(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	if err := homeTemplate.Execute(w, nil); err != nil {
+	if err := homeView.Template.Execute(w, nil); err != nil {
 		panic(err)
 	}
 }
 
 func contact(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	if err := contactTemplate.Execute(w, nil); err != nil {
+	if err := contactView.Template.Execute(w, nil); err != nil {
 		panic(err)
 	}
 }
 
 func faq(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	if err := faqTemplate.Execute(w, nil); err != nil {
+	if err := faqView.Template.Execute(w, nil); err != nil {
 		panic(err)
 	}
 }
 
 func pageNotFound(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotFound)
-	if err := pageNoteFoundTemplate.Execute(w, nil); err != nil {
+	if err := pageNotFoundView.Template.Execute(w, nil); err != nil {
 		panic(err)
 	}
 }
 
 func main() {
-	var err error
-	homeTemplate, err = template.ParseFiles(
-		"views/home.gohtml",
-		"views/layouts/footer.gohtml")
-	if err != nil {
-		panic(err)
-	}
-	contactTemplate, err = template.ParseFiles(
-		"views/contact.gohtml",
-		"views/layouts/footer.gohtml")
-	if err != nil {
-		panic(err)
-	}
-	faqTemplate, err = template.ParseFiles(
-		"views/faq.gohtml",
-		"views/layouts/footer.gohtml")
-	if err != nil {
-		panic(err)
-	}
-	pageNoteFoundTemplate, err = template.ParseFiles(
-		"views/404.gohtml",
-		"views/layouts/footer.gohtml")
-	if err != nil {
-		panic(err)
-	}
+	homeView = views.NewView("views/home.gohtml")
+	contactView = views.NewView("views/contact.gohtml")
+	faqView = views.NewView("views/faq.gohtml")
+	pageNotFoundView = views.NewView("views/404.gohtml")
 
 	var notFound http.Handler = http.HandlerFunc(pageNotFound)
 	r := mux.NewRouter()
