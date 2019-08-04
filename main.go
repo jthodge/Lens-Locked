@@ -1,39 +1,64 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
+	"html/template"
 
 	"github.com/gorilla/mux"
 )
 
+var homeTemplate *template.Template
+var contactTemplate *template.Template
+var faqTemplate *template.Template
+var pageNoteFoundTemplate *template.Template
+
 func home(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	fmt.Fprint(w, "<h1>Welcome!</h1>")
+	if err := homeTemplate.Execute(w, nil); err != nil {
+		panic(err)
+	}
 }
 
 func contact(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	fmt.Fprint(w, "To get in touch, send a message to " +
-		"<a href=\"mailto:support@lenslocked.com\">" +
-		"support@lenslocked.com</a>.")
+	if err := contactTemplate.Execute(w, nil); err != nil {
+		panic(err)
+	}
 }
 
 func faq(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	fmt.Fprint(w, "This page answers the most frequently " +
-    "asked questions about LensLocked.")
+	if err := faqTemplate.Execute(w, nil); err != nil {
+		panic(err)
+	}
 }
 
 func pageNotFound(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotFound)
-	fmt.Fprint(w, "<h1>We couldn't find the page you're " +
-	" looking for.</h1>" + "<p>Please " +
-	"<a href=\"mailto:support@lenslocked.com\">email us</a> if " + 
-	"you continue to experience this issue.</p>")
+	if err := pageNoteFoundTemplate.Execute(w, nil); err != nil {
+		panic(err)
+	}
 }
 
 func main() {
+	var err error
+	homeTemplate, err = template.ParseFiles("views/home.gohtml")
+	if err != nil {
+		panic(err)
+	}
+	contactTemplate, err = template.ParseFiles("views/contact.gohtml")
+	if err != nil {
+		panic(err)
+	}
+	faqTemplate, err = template.ParseFiles("views/faq.gohtml")
+	if err != nil {
+		panic(err)
+	}
+	pageNoteFoundTemplate, err = template.ParseFiles("views/404.gohtml")
+	if err != nil {
+		panic(err)
+	}
+
 	var notFound http.Handler = http.HandlerFunc(pageNotFound)
 	r := mux.NewRouter()
 	r.HandleFunc("/", home)
